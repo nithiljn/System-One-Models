@@ -1,0 +1,147 @@
+"""
+Main FastAPI Application Gateway.
+Provides RESTful endpoints for health monitoring, candidate fitment evaluation, and deep resume audits.
+Serves static frontend assets and handles cross-origin requests.
+"""
+
+import os
+from contextlib import asynccontextmanager
+from functools import lru_cache
+from typing import Dict, Any
+
+from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+from config import get_settings, Settings
+from models import (
+    FitmentRequest,
+    FitmentResponse,
+    AuditRequest,
+    AuditResponse,
+)
+from services import DecisionService
+
+
+@lru_cache
+def get_decision_service() -> DecisionService:
+    """
+    Returns a cached singleton instance of DecisionService.
+    Reuses the AI client across multiple API requests.
+    """
+    return DecisionService()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Application lifespan manager.
+    Validates environment configurations on server startup and logs readiness.
+    """
+    app_settings = get_settings()
+    app_settings.validate()
+    print("FASTAPI SERVER INITIALIZED")
+    print(f"Server listening on http://{app_settings.SERVER_HOST}:{app_settings.SERVER_PORT}")
+    print(f"Decision Model: {app_settings.DECISION_MODEL}")
+    print(f"Audit Model: {app_settings.AUDIT_MODEL}")
+    yield
+    print("FastAPI server shut down cleanly.")
+
+
+# Initialize FastAPI application
+app = FastAPI(
+    title="AI Job Resume Fitment Matcher",
+    description="High speed System-1 fitment decisions powered by Google Gemini Decision-1.",
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+# Configure Cross-Origin Resource Sharing (CORS) for external access
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Mount static files directory if it exists
+static_directory_path = os.path.join(os.path.dirname(__file__), "static")
+if os.path.exists(static_directory_path):
+    app.mount("/static", StaticFiles(directory=static_directory_path), name="static")
+
+
+@app.get("/", tags=["Frontend"])
+def serve_frontend_interface() -> FileResponse:
+    """
+    Serves the primary HTML frontend interface.
+    """
+    index_file_path = os.path.join(static_directory_path, "index.html")
+    if os.path.exists(index_file_path):
+        return FileResponse(index_file_path)
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Frontend interface file index.html was not found."
+    )
+
+
+@app.get("/health", tags=["System"])
+def health_check(app_settings: Settings = Depends(get_settings)) -> Dict[str, Any]:
+    """
+    Health check endpoint returning system status and active model configurations.
+    """
+    return {
+        "status": "healthy",
+        "service": "job-fitment-matcher",
+        "decision_model": app_settings.DECISION_MODEL,
+        "audit_model": app_settings.AUDIT_MODEL,
+        "server_port": app_settings.SERVER_PORT,
+    }
+
+
+@app.post("/api/evaluate-fitment", response_model=FitmentResponse, tags=["Evaluation"])
+def evaluate_fitment(
+    request: FitmentRequest,
+    service: DecisionService = Depends(get_decision_service)
+) -> FitmentResponse:
+    """
+    Receives Job Description and Candidate Resume, executes single-pass Gemini Decision,
+    and returns calibrated eligibility, match tier, and rubric scores with zero output tokens.
+    """
+    try:
+        return service.evaluate_fitment(request)
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Candidate fitment evaluation failed: {str(error)}"
+        )
+
+
+@app.post("/api/deep-audit", response_model=AuditResponse, tags=["Audit"])
+def generate_deep_audit(
+    request: AuditRequest,
+    service: DecisionService = Depends(get_decision_service)
+) -> AuditResponse:
+    """
+    Executes an on-demand System-2 deep resume audit using gemini-3.5-flash-lite.
+    Returns structured feedback on missing skills, resume red flags, and recommendations.
+    """
+    try:
+        return service.generate_deep_audit(request)
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Deep resume audit failed: {str(error)}"
+        )
+
+
+if __name__ == "__main__":
+    import uvicorn
+    server_settings = get_settings()
+    uvicorn.run(
+        "main:app",
+        host=server_settings.SERVER_HOST,
+        port=server_settings.SERVER_PORT,
+        reload=True
+    )

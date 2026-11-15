@@ -1,0 +1,104 @@
+/*
+Deep Sea Blue & Aqua Design Stylesheet
+Clean, oceanic dark-mode visual hierarchy with zero AI gradient fluff or emojis.
+*/
+
+:root {
+    --sea-canvas: #0a192f;
+    --sea-surface: #112240;
+    --sea-surface-elevated: #1a365d;
+    --sea-surface-input: #0d1b2a;
+    --sea-accent: #0ea5e9;
+    --sea-accent-hover: #38bdf8;
+    --sea-text-base: #f8fafc;
+    --sea-text-subdued: #94a3b8;
+    --sea-border: #1e3a5f;
+    --sea-border-light: #233554;
+    --sea-negative: #f87171;
+    --sea-warning: #f59e0b;
+    --sea-success: #06b6d4;
+}
+
+body {
+    background-color: var(--sea-canvas);
+    color: var(--sea-text-base);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom oceanic dark scrollbars */
+textarea::-webkit-scrollbar,
+div::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+textarea::-webkit-scrollbar-track,
+div::-webkit-scrollbar-track {
+    background: var(--sea-surface-input);
+}
+
+textarea::-webkit-scrollbar-thumb,
+div::-webkit-scrollbar-thumb {
+    background: var(--sea-border);
+    border-radius: 4px;
+}
+
+textarea::-webkit-scrollbar-thumb:hover,
+div::-webkit-scrollbar-thumb:hover {
+    background: #2b4970;
+}
+
+/* Input focus outlines in aqua */
+textarea:focus,
+input:focus {
+    outline: 2px solid var(--sea-accent);
+    outline-offset: -1px;
+}
+
+/* Pill button micro-transitions */
+.sea-pill-btn {
+    transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.sea-pill-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25);
+}
+
+.sea-pill-btn:active {
+    transform: translateY(0);
+}
+
+/* Oceanic Shimmer Skeleton Loader */
+.skeleton-shimmer {
+    background: linear-gradient(90deg, #112240 25%, #1e3a5f 50%, #112240 75%);
+    background-size: 200% 100%;
+    animation: oceanic-shimmer 1.5s infinite;
+}
+
+@keyframes oceanic-shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Minimalist loading spinner */
+.sea-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(10, 25, 47, 0.3);
+    border-radius: 50%;
+    border-top-color: #0a192f;
+    animation: sea-spin 0.7s linear infinite;
+}
+
+@keyframes sea-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
