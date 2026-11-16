@@ -1,0 +1,19 @@
+# Secrets & Environment variables
+.env
+.env.*
+
+# Python virtual environment & caches
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+
+# System & Editor files
+.DS_Store
+.git/
+.gitignore
+
+# Local test & architecture documentation
+test_*.py
+Architecture_plan.md
