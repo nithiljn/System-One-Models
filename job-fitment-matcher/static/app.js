@@ -17,6 +17,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const evaluateSpinner = document.getElementById("evaluate-spinner");
     const clearBtn = document.getElementById("clear-btn");
 
+    // PDF Upload Controls
+    const uploadPdfBtn = document.getElementById("upload-pdf-btn");
+    const resumeFileInput = document.getElementById("resume-file-input");
+    const pdfStatusBadge = document.getElementById("pdf-status-badge");
+
     // Preset Buttons
     const presetJobBtn = document.getElementById("preset-job-btn");
     const presetMatchingBtn = document.getElementById("preset-matching-btn");
@@ -96,7 +101,59 @@ document.addEventListener("DOMContentLoaded", () => {
         resultsContainer.classList.add("hidden");
         auditContainer.classList.add("hidden");
         skeletonLoader.classList.add("hidden");
+        pdfStatusBadge.classList.add("hidden");
         hideError();
+    });
+
+    /**
+     * PDF Resume File Selection and Extraction Handler
+     */
+    uploadPdfBtn.addEventListener("click", () => {
+        resumeFileInput.click();
+    });
+
+    resumeFileInput.addEventListener("change", async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (!file.name.toLowerCase().endsWith(".pdf")) {
+            showError("Invalid file type. Please upload a PDF file (.pdf).");
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            showError("File size exceeds 5MB limit. Please upload a smaller PDF.");
+            return;
+        }
+
+        hideError();
+        pdfStatusBadge.classList.remove("hidden");
+        pdfStatusBadge.textContent = "Extracting text from PDF...";
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const response = await fetch("/api/extract-pdf", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.detail || "Failed to parse PDF file.");
+            }
+
+            const data = await response.json();
+            resumeInput.value = data.text;
+            updateCharacterCounts();
+            pdfStatusBadge.textContent = `Loaded: ${data.filename} (${data.pages} ${data.pages === 1 ? 'page' : 'pages'})`;
+        } catch (err) {
+            pdfStatusBadge.classList.add("hidden");
+            showError(err.message);
+        } finally {
+            resumeFileInput.value = "";
+        }
     });
 
     /**

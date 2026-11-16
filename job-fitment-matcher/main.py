@@ -5,14 +5,16 @@ Serves static frontend assets and handles cross-origin requests.
 """
 
 import os
+import io
 from contextlib import asynccontextmanager
 from functools import lru_cache
 from typing import Dict, Any
 
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from pypdf import PdfReader
 
 from config import get_settings, Settings
 from models import (
@@ -133,6 +135,58 @@ def generate_deep_audit(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Deep resume audit failed: {str(error)}"
+        )
+
+
+@app.post("/api/extract-pdf", tags=["Utility"])
+async def extract_pdf_content(file: UploadFile = File(...)) -> Dict[str, Any]:
+    """
+    Extracts text content from an uploaded resume PDF file entirely in memory.
+    Enforces a strict 5MB file size limit and valid PDF format.
+    """
+    if not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid file format. Only PDF files (.pdf) are supported."
+        )
+
+    content_bytes = await file.read()
+    max_size_bytes = 5 * 1024 * 1024  # 5 Megabytes
+    if len(content_bytes) > max_size_bytes:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File size exceeds the 5MB limit. Please upload a smaller PDF."
+        )
+
+    try:
+        pdf_stream = io.BytesIO(content_bytes)
+        reader = PdfReader(pdf_stream)
+        extracted_text_pages = []
+
+        for page in reader.pages:
+            page_text = page.extract_text()
+            if page_text:
+                extracted_text_pages.append(page_text.strip())
+
+        extracted_text = "\n\n".join(extracted_text_pages).strip()
+
+        if not extracted_text or len(extracted_text) < 10:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Unable to extract text from this PDF. It may be an image scan or password-protected."
+            )
+
+        return {
+            "text": extracted_text,
+            "filename": file.filename,
+            "pages": len(reader.pages),
+        }
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to process PDF file: {str(exc)}"
         )
 
 

@@ -75,23 +75,35 @@
             <!-- Right Panel: Candidate Resume -->
             <section class="bg-[#112240] p-6 rounded-lg border border-[#1e3a5f] flex flex-col justify-between shadow-md">
                 <div class="flex-1 flex flex-col">
-                    <div class="flex items-center justify-between mb-3">
-                        <label for="resume-content-input" class="text-xs font-bold uppercase tracking-wider text-[#94a3b8]">
-                            Candidate Resume & Profile
-                        </label>
-                        <div class="space-x-2">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <div class="flex items-center space-x-2">
+                            <label for="resume-content-input" class="text-xs font-bold uppercase tracking-wider text-[#94a3b8]">
+                                Candidate Resume
+                            </label>
+                            <span id="pdf-status-badge" class="hidden text-xs text-[#38bdf8] bg-[#0d1b2a] border border-[#1e3a5f] px-2 py-0.5 rounded-full font-mono"></span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <!-- Hidden File Input for PDF -->
+                            <input type="file" id="resume-file-input" accept=".pdf,application/pdf" class="hidden">
+                            <button id="upload-pdf-btn" type="button" class="text-xs font-semibold uppercase text-[#38bdf8] hover:text-[#7dd3fc] transition-colors border border-[#1e3a5f] px-2.5 py-1 rounded bg-[#0d1b2a] inline-flex items-center space-x-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                                </svg>
+                                <span>Upload PDF</span>
+                            </button>
+                            <span class="text-[#334155]">|</span>
                             <button id="preset-matching-btn" type="button" class="text-xs font-semibold uppercase text-[#38bdf8] hover:text-[#7dd3fc] transition-colors">
-                                Load Strong Fit
+                                Strong Fit
                             </button>
                             <span class="text-[#334155]">|</span>
                             <button id="preset-mismatched-btn" type="button" class="text-xs font-semibold uppercase text-[#f59e0b] hover:text-amber-300 transition-colors">
-                                Load Mismatch
+                                Mismatch
                             </button>
                         </div>
                     </div>
                     <textarea
                         id="resume-content-input"
-                        placeholder="Paste candidate work history, technical skills, production project details, and certifications..."
+                        placeholder="Upload resume PDF above or paste work history, skills, production project details, and certifications..."
                         class="w-full flex-1 min-h-[220px] lg:min-h-[260px] bg-[#0d1b2a] border border-[#1e3a5f] rounded-md p-4 text-sm text-[#f8fafc] placeholder-[#64748b] resize-y"
                     ></textarea>
                 </div>
