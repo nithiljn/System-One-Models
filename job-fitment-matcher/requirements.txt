@@ -4,4 +4,4 @@ google-genai
 python-dotenv
 pypdf
 python-multipart
-pydantic==2.12.5
+pydantic
