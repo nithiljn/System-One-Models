@@ -293,14 +293,15 @@ document.addEventListener("DOMContentLoaded", () => {
             verdictSubtitle.textContent = `Candidate lacks fundamental required technologies for this role.`;
         }
 
-        // 2. Fit Tier Badge
+        // 2. Fit Tier Badge (Marked Area: Green & White for Match, Lite Red & White for Not Match)
         fitTierBadge.textContent = data.fit_tier.toUpperCase();
         if (data.fit_tier === "Strong Match") {
-            fitTierBadge.className = "px-3 py-1 text-xs font-bold uppercase rounded-full bg-[#c1a265] text-[#0d1726]";
+            fitTierBadge.className = "px-3.5 py-1 text-xs font-bold uppercase rounded-full bg-[#16a34a] text-[#ffffff] shadow-sm";
         } else if (data.fit_tier === "Moderate Match") {
-            fitTierBadge.className = "px-3 py-1 text-xs font-bold uppercase rounded-full bg-[#f59e0b] text-[#0d1726]";
+            fitTierBadge.className = "px-3.5 py-1 text-xs font-bold uppercase rounded-full bg-[#f59e0b] text-[#ffffff] shadow-sm";
         } else {
-            fitTierBadge.className = "px-3 py-1 text-xs font-bold uppercase rounded-full bg-[#f87171] text-[#0d1726]";
+            // Not match (Skill Gap / Mismatched): Lite Red background with White text
+            fitTierBadge.className = "px-3.5 py-1 text-xs font-bold uppercase rounded-full bg-[#ef4444] text-[#ffffff] shadow-sm";
         }
 
         // 3. Dealbreaker Indicator
@@ -378,37 +379,37 @@ document.addEventListener("DOMContentLoaded", () => {
         redFlagsList.innerHTML = "";
         recommendationsList.innerHTML = "";
 
-        // Render Missing Skills
+        // Render Missing Skills (White background with solid black text)
         if (auditData.missing_skills.length === 0) {
-            missingSkillsList.innerHTML = `<li class="text-[#94a3b8] text-sm">No critical skills missing.</li>`;
+            missingSkillsList.innerHTML = `<li class="text-[#64748b] text-sm italic">No critical skills missing.</li>`;
         } else {
             auditData.missing_skills.forEach(skill => {
                 const item = document.createElement("li");
-                item.className = "text-sm text-[#f8fafc] bg-[#0d1b2a] border border-[#1e3a5f] px-3 py-2 rounded";
+                item.className = "text-sm text-[#0f172a] bg-[#ffffff] border border-[#d8d1c0] px-3.5 py-2.5 rounded-md font-medium shadow-sm";
                 item.textContent = skill;
                 missingSkillsList.appendChild(item);
             });
         }
 
-        // Render Resume Red Flags
+        // Render Resume Red Flags (White background with lite red text)
         if (auditData.resume_red_flags.length === 0) {
-            redFlagsList.innerHTML = `<li class="text-[#94a3b8] text-sm">No structural or technical red flags identified.</li>`;
+            redFlagsList.innerHTML = `<li class="text-[#64748b] text-sm italic">No structural or technical red flags identified.</li>`;
         } else {
             auditData.resume_red_flags.forEach(flag => {
                 const item = document.createElement("li");
-                item.className = "text-sm text-[#f87171] bg-[#0d1b2a] border border-[#1e3a5f] px-3 py-2 rounded";
+                item.className = "text-sm text-[#ef4444] bg-[#ffffff] border border-[#fecaca] px-3.5 py-2.5 rounded-md font-medium shadow-sm";
                 item.textContent = flag;
                 redFlagsList.appendChild(item);
             });
         }
 
-        // Render Actionable Recommendations
+        // Render Actionable Recommendations (White background with solid black text)
         if (auditData.actionable_recommendations.length === 0) {
-            recommendationsList.innerHTML = `<li class="text-[#94a3b8] text-sm">No specific improvements recommended.</li>`;
+            recommendationsList.innerHTML = `<li class="text-[#64748b] text-sm italic">No specific improvements recommended.</li>`;
         } else {
             auditData.actionable_recommendations.forEach(rec => {
                 const item = document.createElement("li");
-                item.className = "text-sm text-[#38bdf8] bg-[#0d1b2a] border border-[#1e3a5f] px-3 py-2 rounded";
+                item.className = "text-sm text-[#0f172a] bg-[#ffffff] border border-[#d8d1c0] px-3.5 py-2.5 rounded-md font-medium shadow-sm";
                 item.textContent = rec;
                 recommendationsList.appendChild(item);
             });
