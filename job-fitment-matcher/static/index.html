@@ -69,15 +69,15 @@
             </div>
         </header>
 
-        <!-- Error Notification Banner: Solid Red with Zero Border & Pure White Text -->
-        <div id="error-alert" class="hidden mb-4 p-4 rounded-lg bg-[#dc2626] text-[#ffffff] flex items-center justify-between shadow-md">
+        <!-- Error Notification Banner: Light Red with Zero Border & Pure White Text -->
+        <div id="error-alert" class="hidden mb-4 p-4 rounded-lg bg-[#ef4444] text-[#ffffff] flex items-center justify-between shadow-md">
             <div class="flex items-center space-x-3">
                 <svg class="w-5 h-5 flex-shrink-0 text-[#ffffff]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                <span id="error-message" class="text-sm font-medium text-[#ffffff]"></span>
+                <span id="error-message" class="text-sm font-semibold text-[#ffffff]"></span>
             </div>
-            <button id="close-error-btn" type="button" class="text-[#ffffff] hover:text-[#fecaca] transition-colors p-1 cursor-pointer" title="Dismiss error">
+            <button id="close-error-btn" type="button" class="text-[#ffffff] hover:text-[#fee2e2] transition-colors p-1 cursor-pointer" title="Dismiss error">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
@@ -91,9 +91,8 @@
             <section class="bg-[#f0ede4] p-4 sm:p-5 rounded-lg border border-[#dfd9cb] flex flex-col justify-between shadow-md">
                 <div class="flex-1 flex flex-col">
                     <div class="h-8 flex items-center justify-between mb-2">
-                        <label for="job-description-input" class="text-xs font-bold uppercase tracking-wider text-[#0d1726] flex items-center">
-                            <span class="w-2 h-2 rounded-full bg-[#c1a265] mr-2"></span>
-                            <span>Target Job Description</span>
+                        <label for="job-description-input" class="text-xs font-bold uppercase tracking-wider text-[#0d1726]">
+                            Target Job Description
                         </label>
                         <span class="text-xs text-[#64748b] font-medium hidden sm:inline">Job Requirements & Stack</span>
                     </div>
@@ -113,9 +112,8 @@
             <section class="bg-[#f0ede4] p-4 sm:p-5 rounded-lg border border-[#dfd9cb] flex flex-col justify-between shadow-md">
                 <div class="flex-1 flex flex-col">
                     <div class="h-8 flex items-center justify-between mb-2">
-                        <label for="resume-content-input" class="text-xs font-bold uppercase tracking-wider text-[#0d1726] flex items-center">
-                            <span class="w-2 h-2 rounded-full bg-[#c1a265] mr-2"></span>
-                            <span>Candidate Resume</span>
+                        <label for="resume-content-input" class="text-xs font-bold uppercase tracking-wider text-[#0d1726]">
+                            Candidate Resume
                         </label>
                         <div class="flex items-center space-x-2">
                             <!-- Hidden File Input for PDF -->
