@@ -88,6 +88,17 @@ def serve_frontend_interface() -> FileResponse:
     )
 
 
+@app.get("/favicon.ico", include_in_schema=False)
+def serve_favicon() -> FileResponse:
+    """
+    Serves application favicon icon file.
+    """
+    favicon_png_path = os.path.join(static_directory_path, "favicon.png")
+    if os.path.exists(favicon_png_path):
+        return FileResponse(favicon_png_path)
+    return FileResponse(os.path.join(static_directory_path, "favicon.svg"))
+
+
 @app.get("/health", tags=["System"])
 def health_check(app_settings: Settings = Depends(get_settings)) -> Dict[str, Any]:
     """

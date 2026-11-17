@@ -17,15 +17,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const evaluateSpinner = document.getElementById("evaluate-spinner");
     const clearBtn = document.getElementById("clear-btn");
 
-    // PDF Upload Controls
+    // PDF Upload Controls & File Chip
     const uploadPdfBtn = document.getElementById("upload-pdf-btn");
     const resumeFileInput = document.getElementById("resume-file-input");
-    const pdfStatusBadge = document.getElementById("pdf-status-badge");
-
-    // Preset Buttons
-    const presetJobBtn = document.getElementById("preset-job-btn");
-    const presetMatchingBtn = document.getElementById("preset-matching-btn");
-    const presetMismatchedBtn = document.getElementById("preset-mismatched-btn");
+    const pdfChip = document.getElementById("pdf-chip");
+    const pdfFilename = document.getElementById("pdf-filename");
+    const removePdfBtn = document.getElementById("remove-pdf-btn");
 
     // Results Display Containers & Skeleton
     const skeletonLoader = document.getElementById("skeleton-loader");
@@ -73,88 +70,123 @@ document.addEventListener("DOMContentLoaded", () => {
     jobInput.addEventListener("input", updateCharacterCounts);
     resumeInput.addEventListener("input", updateCharacterCounts);
 
-    /**
-     * Preset Button Event Handlers
-     */
-    presetJobBtn.addEventListener("click", () => {
-        jobInput.value = samplePresets.jobDescription;
-        updateCharacterCounts();
-        hideError();
-    });
-
-    presetMatchingBtn.addEventListener("click", () => {
-        resumeInput.value = samplePresets.matchingResume;
-        updateCharacterCounts();
-        hideError();
-    });
-
-    presetMismatchedBtn.addEventListener("click", () => {
-        resumeInput.value = samplePresets.mismatchedResume;
-        updateCharacterCounts();
-        hideError();
-    });
-
     clearBtn.addEventListener("click", () => {
         jobInput.value = "";
         resumeInput.value = "";
+        resumeFileInput.value = "";
+        if (pdfFilename) pdfFilename.textContent = "";
+        if (pdfChip) {
+            pdfChip.classList.add("hidden");
+            pdfChip.classList.remove("flex");
+        }
+        if (uploadPdfBtn) uploadPdfBtn.classList.remove("hidden");
         updateCharacterCounts();
         resultsContainer.classList.add("hidden");
         auditContainer.classList.add("hidden");
         skeletonLoader.classList.add("hidden");
-        pdfStatusBadge.classList.add("hidden");
         hideError();
     });
 
     /**
+     * Remove Uploaded PDF Resume Handler
+     * Clears candidate resume text, resets file input, and restores upload button.
+     */
+    if (removePdfBtn) {
+        removePdfBtn.addEventListener("click", () => {
+            resumeInput.value = "";
+            resumeFileInput.value = "";
+            if (pdfFilename) pdfFilename.textContent = "";
+            if (pdfChip) {
+                pdfChip.classList.add("hidden");
+                pdfChip.classList.remove("flex");
+            }
+            if (uploadPdfBtn) uploadPdfBtn.classList.remove("hidden");
+            updateCharacterCounts();
+            hideError();
+        });
+    }
+
+    /**
      * PDF Resume File Selection and Extraction Handler
      */
-    uploadPdfBtn.addEventListener("click", () => {
-        resumeFileInput.click();
-    });
+    if (uploadPdfBtn && resumeFileInput) {
+        uploadPdfBtn.addEventListener("click", (e) => {
+            if (uploadPdfBtn.tagName.toLowerCase() !== "label") {
+                resumeFileInput.click();
+            }
+        });
+    }
 
-    resumeFileInput.addEventListener("change", async (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
+    if (resumeFileInput) {
+        resumeFileInput.addEventListener("change", async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
 
-        if (!file.name.toLowerCase().endsWith(".pdf")) {
-            showError("Invalid file type. Please upload a PDF file (.pdf).");
-            return;
-        }
-
-        if (file.size > 5 * 1024 * 1024) {
-            showError("File size exceeds 5MB limit. Please upload a smaller PDF.");
-            return;
-        }
-
-        hideError();
-        pdfStatusBadge.classList.remove("hidden");
-        pdfStatusBadge.textContent = "Extracting text from PDF...";
-
-        const formData = new FormData();
-        formData.append("file", file);
-
-        try {
-            const response = await fetch("/api/extract-pdf", {
-                method: "POST",
-                body: formData,
-            });
-
-            if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.detail || "Failed to parse PDF file.");
+            if (!file.name.toLowerCase().endsWith(".pdf")) {
+                showError("Invalid file type. Please upload a PDF file (.pdf).");
+                return;
             }
 
-            const data = await response.json();
-            resumeInput.value = data.text;
-            updateCharacterCounts();
-            pdfStatusBadge.textContent = `Loaded: ${data.filename} (${data.pages} ${data.pages === 1 ? 'page' : 'pages'})`;
-        } catch (err) {
-            pdfStatusBadge.classList.add("hidden");
-            showError(err.message);
-        } finally {
-            resumeFileInput.value = "";
-        }
-    });
+            if (file.size > 5 * 1024 * 1024) {
+                showError("File size exceeds 5MB limit. Please upload a smaller PDF.");
+                return;
+            }
+
+            hideError();
+            if (uploadPdfBtn) {
+                uploadPdfBtn.classList.add("pointer-events-none", "opacity-60");
+                uploadPdfBtn.innerHTML = `
+                    <div class="gold-spinner w-3 h-3"></div>
+                    <span>Extracting...</span>
+                `;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const response = await fetch("/api/extract-pdf", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.detail || "Failed to parse PDF file.");
+                }
+
+                const data = await response.json();
+                resumeInput.value = data.text;
+                updateCharacterCounts();
+
+                // Display file chip with remove icon
+                if (pdfFilename) pdfFilename.textContent = data.filename;
+                if (uploadPdfBtn) uploadPdfBtn.classList.add("hidden");
+                if (pdfChip) {
+                    pdfChip.classList.remove("hidden");
+                    pdfChip.classList.add("flex");
+                }
+            } catch (err) {
+                if (pdfChip) {
+                    pdfChip.classList.add("hidden");
+                    pdfChip.classList.remove("flex");
+                }
+                if (uploadPdfBtn) uploadPdfBtn.classList.remove("hidden");
+                showError(err.message);
+            } finally {
+                if (uploadPdfBtn) {
+                    uploadPdfBtn.classList.remove("pointer-events-none", "opacity-60");
+                    uploadPdfBtn.innerHTML = `
+                        <svg class="w-3.5 h-3.5 text-[#c1a265]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                        </svg>
+                        <span>Upload PDF</span>
+                    `;
+                }
+                resumeFileInput.value = "";
+            }
+        });
+    }
 
     /**
      * Displays a clean error message banner.
@@ -169,6 +201,11 @@ document.addEventListener("DOMContentLoaded", () => {
      */
     function hideError() {
         errorAlert.classList.add("hidden");
+    }
+
+    const closeErrorBtn = document.getElementById("close-error-btn");
+    if (closeErrorBtn) {
+        closeErrorBtn.addEventListener("click", hideError);
     }
 
     /**
@@ -235,14 +272,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     /**
-     * Renders System-1 evaluation metrics adhering to Sea Blue & Aqua theme.
+     * Renders System-1 evaluation metrics adhering to Midnight Blue & Gold theme.
      */
     function renderEvaluationResults(data, clientLatencyMs) {
         // 1. Verdict Banner Styling
         if (data.is_eligible && data.fit_tier === "Strong Match") {
-            verdictBanner.className = "p-6 rounded-lg border border-[#06b6d4] bg-[#0c2a38]";
+            verdictBanner.className = "p-6 rounded-lg border border-[#c1a265] bg-[#16243d]";
             verdictTitle.textContent = "RECOMMENDED TO APPLY";
-            verdictTitle.className = "text-lg font-bold tracking-wider uppercase text-[#38bdf8]";
+            verdictTitle.className = "text-lg font-bold tracking-wider uppercase text-[#c1a265]";
             verdictSubtitle.textContent = `High qualification alignment with ${(data.eligibility_confidence * 100).toFixed(1)}% model confidence.`;
         } else if (data.is_eligible) {
             verdictBanner.className = "p-6 rounded-lg border border-[#f59e0b] bg-[#2a2114]";
@@ -259,20 +296,20 @@ document.addEventListener("DOMContentLoaded", () => {
         // 2. Fit Tier Badge
         fitTierBadge.textContent = data.fit_tier.toUpperCase();
         if (data.fit_tier === "Strong Match") {
-            fitTierBadge.className = "px-3 py-1 text-xs font-bold uppercase rounded-full bg-[#0ea5e9] text-[#0a192f]";
+            fitTierBadge.className = "px-3 py-1 text-xs font-bold uppercase rounded-full bg-[#c1a265] text-[#0d1726]";
         } else if (data.fit_tier === "Moderate Match") {
-            fitTierBadge.className = "px-3 py-1 text-xs font-bold uppercase rounded-full bg-[#f59e0b] text-[#0a192f]";
+            fitTierBadge.className = "px-3 py-1 text-xs font-bold uppercase rounded-full bg-[#f59e0b] text-[#0d1726]";
         } else {
-            fitTierBadge.className = "px-3 py-1 text-xs font-bold uppercase rounded-full bg-[#f87171] text-[#0a192f]";
+            fitTierBadge.className = "px-3 py-1 text-xs font-bold uppercase rounded-full bg-[#f87171] text-[#0d1726]";
         }
 
         // 3. Dealbreaker Indicator
         if (data.has_dealbreakers) {
             dealbreakerBadge.textContent = "CRITICAL DEALBREAKER DETECTED";
-            dealbreakerBadge.className = "px-3 py-1 text-xs font-bold uppercase rounded-full bg-[#f87171] text-[#0a192f]";
+            dealbreakerBadge.className = "px-3 py-1 text-xs font-bold uppercase rounded-full bg-[#f87171] text-[#0d1726]";
         } else {
             dealbreakerBadge.textContent = "NO DEALBREAKERS DETECTED";
-            dealbreakerBadge.className = "px-3 py-1 text-xs font-bold uppercase rounded-full bg-[#1e3a5f] text-[#94a3b8]";
+            dealbreakerBadge.className = "px-3 py-1 text-xs font-bold uppercase rounded-full bg-[#1e2f4a] text-[#c1a265]";
         }
 
         // 4. Match Score & Progress Bar
@@ -281,7 +318,7 @@ document.addEventListener("DOMContentLoaded", () => {
         scoreBar.style.width = `${percentage}%`;
 
         if (data.match_score >= 7.0) {
-            scoreBar.className = "h-full bg-[#0ea5e9] transition-all duration-500";
+            scoreBar.className = "h-full bg-[#c1a265] transition-all duration-500";
         } else if (data.match_score >= 4.0) {
             scoreBar.className = "h-full bg-[#f59e0b] transition-all duration-500";
         } else {

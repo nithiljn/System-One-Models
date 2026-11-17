@@ -1,84 +1,115 @@
 /*
-Deep Sea Blue & Aqua Design Stylesheet
-Clean, oceanic dark-mode visual hierarchy with zero AI gradient fluff or emojis.
+Cognisive Midnight Blue & Warm Gold Stylesheet
+Clean, high-contrast dark aesthetic with sampled midnight blue and warm champagne gold accents.
+Strictly zero emojis and zero cheesy gradient fluff.
 */
 
 :root {
-    --sea-canvas: #0a192f;
-    --sea-surface: #112240;
-    --sea-surface-elevated: #1a365d;
-    --sea-surface-input: #0d1b2a;
-    --sea-accent: #0ea5e9;
-    --sea-accent-hover: #38bdf8;
-    --sea-text-base: #f8fafc;
-    --sea-text-subdued: #94a3b8;
-    --sea-border: #1e3a5f;
-    --sea-border-light: #233554;
-    --sea-negative: #f87171;
-    --sea-warning: #f59e0b;
-    --sea-success: #06b6d4;
+    --canvas-bg: #0d1726;
+    --card-bg: #121e33;
+    --card-surface: #16243d;
+    --card-border: #1e2f4a;
+    --input-bg: #09111e;
+    --gold-primary: #c1a265;
+    --gold-hover: #d4b476;
+    --gold-subtle: rgba(193, 162, 101, 0.15);
+    --gold-border: rgba(193, 162, 101, 0.35);
+    --text-primary: #ffffff;
+    --text-subdued: #94a3b8;
+    --text-secondary: #cbd5e1;
+    --negative: #f87171;
+    --warning: #f59e0b;
+    --success: #34d399;
 }
 
 body {
-    background-color: var(--sea-canvas);
-    color: var(--sea-text-base);
+    background-color: var(--canvas-bg);
+    color: var(--text-primary);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom oceanic dark scrollbars */
-textarea::-webkit-scrollbar,
+/* Custom scrollbars */
+textarea::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+textarea::-webkit-scrollbar-track {
+    background: #f0ede4;
+}
+
+textarea::-webkit-scrollbar-thumb {
+    background: #d4cdc0;
+    border-radius: 4px;
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+    background: #c1a265;
+}
+
 div::-webkit-scrollbar {
     width: 8px;
     height: 8px;
 }
 
-textarea::-webkit-scrollbar-track,
 div::-webkit-scrollbar-track {
-    background: var(--sea-surface-input);
+    background: var(--input-bg);
 }
 
-textarea::-webkit-scrollbar-thumb,
 div::-webkit-scrollbar-thumb {
-    background: var(--sea-border);
+    background: var(--card-border);
     border-radius: 4px;
 }
 
-textarea::-webkit-scrollbar-thumb:hover,
 div::-webkit-scrollbar-thumb:hover {
-    background: #2b4970;
+    background: var(--gold-border);
 }
 
-/* Input focus outlines in aqua */
-textarea:focus,
-input:focus {
-    outline: 2px solid var(--sea-accent);
-    outline-offset: -1px;
+/* Button micro-interactions with ultra-high contrast (Zero colored box shadows) */
+.gold-cta-btn {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--gold-primary) !important;
+    color: #0d1726 !important;
+    font-weight: 700 !important;
+    border: 1.5px solid var(--gold-primary);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none !important;
 }
 
-/* Pill button micro-transitions */
-.sea-pill-btn {
-    transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+.gold-cta-btn,
+.gold-cta-btn * {
+    color: #0d1726 !important;
+    font-weight: 700 !important;
 }
 
-.sea-pill-btn:hover {
+.gold-cta-btn:hover {
+    background-color: #dfc285 !important;
+    border-color: #f3e0b0 !important;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25);
+    box-shadow: none !important;
 }
 
-.sea-pill-btn:active {
+.gold-cta-btn:hover,
+.gold-cta-btn:hover * {
+    color: #000000 !important;
+    font-weight: 800 !important;
+}
+
+.gold-cta-btn:active {
     transform: translateY(0);
 }
 
-/* Oceanic Shimmer Skeleton Loader */
+/* Matte Charcoal Obsidian Shimmer Skeleton Loader */
 .skeleton-shimmer {
-    background: linear-gradient(90deg, #112240 25%, #1e3a5f 50%, #112240 75%);
+    background: linear-gradient(90deg, #18191d 25%, #27282e 50%, #18191d 75%);
     background-size: 200% 100%;
-    animation: oceanic-shimmer 1.5s infinite;
+    animation: midnight-gold-shimmer 1.5s infinite;
 }
 
-@keyframes oceanic-shimmer {
+@keyframes midnight-gold-shimmer {
     0% {
         background-position: -200% 0;
     }
@@ -87,17 +118,22 @@ input:focus {
     }
 }
 
-/* Minimalist loading spinner */
-.sea-spinner {
+/* Gold spinner */
+.gold-spinner {
     width: 18px;
     height: 18px;
-    border: 2px solid rgba(10, 25, 47, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 50%;
-    border-top-color: #0a192f;
-    animation: sea-spin 0.7s linear infinite;
+    border-top-color: #ffffff;
+    animation: gold-spin 0.7s linear infinite;
 }
 
-@keyframes sea-spin {
+.gold-cta-btn .gold-spinner {
+    border: 2px solid rgba(13, 23, 38, 0.25);
+    border-top-color: #0d1726;
+}
+
+@keyframes gold-spin {
     to {
         transform: rotate(360deg);
     }
